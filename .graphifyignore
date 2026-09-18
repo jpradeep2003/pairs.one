@@ -1,0 +1,9 @@
+history/
+graphify-out/
+_build/
+deps/
+assets/elm/elm-stuff/
+assets/node_modules/
+priv/
+.run/
+docs/

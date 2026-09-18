@@ -32,6 +32,7 @@
               <img class="header-logo--sm" src="/images/owl.svg" alt="pairs one logo"/>
               Pairs One
             <% end %>
+            <small><%= link "My games", to: "/#{locale()}/user" %></small>
           </h4>
         </header>
       <% else %>
@@ -42,6 +43,7 @@
                 <img class="header-logo--lg" src="/images/owl.svg" alt="pairs one logo"/>
                 Pairs One
               </h1>
+              <p><%= link "My games", to: "/#{locale()}/user" %></p>
             </div>
             <div class="col-sm-6"><h2><%= gettext "Concentration game: multiplayer and registration-free" %></h2></div>
           </div>

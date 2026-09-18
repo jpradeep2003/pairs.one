@@ -690,6 +690,20 @@ img.screenshot {
   margin-bottom: -10px;
 }
 
+.user-history {
+  margin-top: 30px;
+  margin-bottom: 30px;
+}
+
+.user-history .table {
+  margin-bottom: 0;
+}
+
+.header h4 small {
+  margin-left: 12px;
+  font-size: 0.6em;
+}
+
 /* hidden news-bar */
 .news-bar {
   padding: 10px;

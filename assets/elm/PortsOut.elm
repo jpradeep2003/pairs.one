@@ -20,3 +20,9 @@ port copyUrl : String -> Cmd msg
 
 
 port storeNameLocally : String -> Cmd msg
+
+
+port saveGameHistory : JE.Value -> Cmd msg
+
+
+port gameRestarted : Bool -> Cmd msg

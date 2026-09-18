@@ -103,6 +103,46 @@ $(function(){
         localStorage.setItem('pairs-one-player', name);
       });
 
+      var gameStartedAt = Date.now();
+      var historyKey = "pairs-one-game-history";
+
+      if (elm.ports.saveGameHistory) {
+        elm.ports.saveGameHistory.subscribe(function(payload){
+          var endedAt = Date.now();
+          var entry = {
+            score: payload.score,
+            durationMs: endedAt - gameStartedAt,
+            startTime: new Date(gameStartedAt).toISOString(),
+            endTime: new Date(endedAt).toISOString(),
+            theme: payload.theme,
+            size: payload.size,
+            id: payload.id
+          };
+          var history = [];
+          try {
+            history = JSON.parse(localStorage.getItem(historyKey) || "[]");
+          } catch (err) {
+            history = [];
+          }
+          if (!Array.isArray(history)) {
+            history = [];
+          }
+          var alreadyStored = history.some(function(item){
+            return item.id === entry.id && item.endTime === entry.endTime;
+          });
+          if (!alreadyStored) {
+            history.unshift(entry);
+            localStorage.setItem(historyKey, JSON.stringify(history.slice(0, 200)));
+          }
+        });
+      }
+
+      if (elm.ports.gameRestarted) {
+        elm.ports.gameRestarted.subscribe(function(){
+          gameStartedAt = Date.now();
+        });
+      }
+
       window.addEventListener("focus", function(event){
         elm.ports.onFocusChange.send(true);
       }, true);
@@ -112,6 +152,55 @@ $(function(){
       }, true);
     }
   )
+
+  var renderHistory = function(){
+    var $body = $(".user-history__body");
+    if (!$body.length) {
+      return;
+    }
+    var history = [];
+    try {
+      history = JSON.parse(localStorage.getItem("pairs-one-game-history") || "[]");
+    } catch (err) {
+      history = [];
+    }
+    if (!Array.isArray(history) || history.length === 0) {
+      $body.empty();
+      $(".user-history__empty").removeClass("hidden");
+      return;
+    }
+    $(".user-history__empty").addClass("hidden");
+    var formatDuration = function(ms){
+      var totalSeconds = Math.max(0, Math.round((ms || 0) / 1000));
+      var minutes = Math.floor(totalSeconds / 60);
+      var seconds = totalSeconds % 60;
+      return minutes + ":" + (seconds < 10 ? "0" : "") + seconds;
+    };
+    var formatTime = function(iso){
+      if (!iso) {
+        return "";
+      }
+      var date = new Date(iso);
+      if (isNaN(date.getTime())) {
+        return iso;
+      }
+      return date.toLocaleString();
+    };
+    $body.empty();
+    history.forEach(function(item){
+      var size = item.size ? item.size + "x" + item.size : "";
+      var row = $("<tr/>");
+      row.append($("<td/>").text(item.score || ""));
+      row.append($("<td/>").text(formatDuration(item.durationMs)));
+      row.append($("<td/>").text(formatTime(item.startTime)));
+      row.append($("<td/>").text(formatTime(item.endTime)));
+      row.append($("<td/>").text(item.theme || ""));
+      row.append($("<td/>").text(size));
+      $body.append(row);
+    });
+  };
+
+  renderHistory();
 
   $("#player-data input").attr("value", playerName);
 

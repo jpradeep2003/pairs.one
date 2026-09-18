@@ -48,7 +48,7 @@ exports.config = {
     // See .deliver/config, where we do elmBrunch's work manually
     elmBrunch: {
       elmFolder: "elm",
-      mainModules: ["Game.elm", "GameList.elm", "GameSettings.elm"],
+      mainModules: ["Game.elm", "GameSettings.elm"],
       outputFolder: "../vendor/elm"
     },
     babel: {

@@ -5,6 +5,7 @@ module Update exposing (update)
 import Json.Decode as JD
 import Json.Encode as JE
 import List.Extra
+import String
 import Phoenix.Presence exposing (PresenceState, presenceDiffDecoder, presenceStateDecoder, syncDiff, syncState)
 import Phoenix.Push
 import Phoenix.Socket
@@ -200,7 +201,7 @@ replay model =
         ( phxSocket, phxCmd ) =
             Phoenix.Socket.push push model.phxSocket
     in
-    { model | isCompleted = False } ! [ Cmd.map PhoenixMsg phxCmd ]
+    { model | isCompleted = False } ! [ Cmd.map PhoenixMsg phxCmd, gameRestarted True ]
 
 
 flipCard : Int -> Model -> ( Model, Cmd Msg )
@@ -316,8 +317,11 @@ flipCard index model =
 
         newModel =
             { model | game = newGame, flippedIds = flippedIds, isCompleted = roundFinished, playerTurn = playerTurn }
+
+        historyCmd =
+            maybeSaveHistory model.isCompleted newModel
     in
-    ( newModel, Cmd.batch [ sendGame newGame ] )
+    ( newModel, Cmd.batch [ sendGame newGame, historyCmd ] )
 
 
 updateGame : Model -> Game -> ( Model, Cmd Msg )
@@ -352,7 +356,7 @@ updateGame model game =
                 game_
 
         isCompleted =
-            List.length game.cards.values == List.length game.cards.cleared
+            List.length game.cards.values == List.length game.cards.cleared && List.length game.cards.values > 0
 
         playerTurn_ =
             if isLocal game then
@@ -360,15 +364,17 @@ updateGame model game =
 
             else
                 playerTurn model.playerId game.players
+
+        newModel =
+            { model
+                | game = game__
+                , flippedIds = game.cards.flipped
+                , playerTurn = playerTurn_
+                , isCompleted = isCompleted
+                , random = game.random
+            }
     in
-    { model
-        | game = game__
-        , flippedIds = game.cards.flipped
-        , playerTurn = playerTurn_
-        , isCompleted = isCompleted
-        , random = game.random
-    }
-        ! [ playReadyCmd, playFlipCmd ]
+    newModel ! [ playReadyCmd, playFlipCmd, maybeSaveHistory model.isCompleted newModel ]
 
 
 sendGame : Game -> Cmd Msg
@@ -401,3 +407,34 @@ decoderError model error =
 cardValueAt : CardData -> Int -> Int
 cardValueAt cardData index =
     cardData.values |> List.drop index |> List.head |> Maybe.withDefault -1
+
+
+maybeSaveHistory : Bool -> Model -> Cmd Msg
+maybeSaveHistory wasCompleted model =
+    if (not wasCompleted) && model.isCompleted then
+        saveGameHistory (historyValue model)
+
+    else
+        Cmd.none
+
+
+historyValue : Model -> JE.Value
+historyValue model =
+    let
+        cardCount =
+            List.length model.game.cards.values
+
+        size =
+            round (sqrt (toFloat cardCount))
+
+        score =
+            model.game.players
+                |> List.map (\p -> toString p.score)
+                |> String.join "-"
+    in
+    JE.object
+        [ ( "id", JE.string model.game.id )
+        , ( "theme", JE.string model.game.theme )
+        , ( "size", JE.int size )
+        , ( "score", JE.string score )
+        ]

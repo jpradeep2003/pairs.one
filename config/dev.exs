@@ -16,7 +16,6 @@ config :pairs_one, PairsOneWeb.Endpoint,
     node: [
       "node_modules/brunch/bin/brunch",
       "watch",
-      "--stdin",
       cd: Path.expand("../assets", __DIR__)
     ]
   ]

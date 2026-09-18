@@ -1,0 +1,25 @@
+<h3 id="custom-game" class="centered-content custom-game__title">Start a custom game</h3>
+<div class="col-sm-12">
+  <div class="elm-game-selector" data-themes='<%= raw @themes %>' data-csrf='<%= get_csrf_token() %>'></div>
+</div>
+
+<h3 class="centered-content custom-game__title">History</h3>
+<div class="col-sm-12">
+  <div class="game-settings-form user-history">
+    <table class="table">
+      <thead>
+        <tr>
+          <th>Score</th>
+          <th>Duration</th>
+          <th>Start</th>
+          <th>End</th>
+          <th>Theme</th>
+          <th>Size</th>
+        </tr>
+      </thead>
+      <tbody class="user-history__body">
+      </tbody>
+    </table>
+    <p class="text-muted user-history__empty hidden">No games recorded yet. Finish a custom game to see it here.</p>
+  </div>
+</div>

@@ -21,6 +21,7 @@ defmodule PairsOneWeb.Router do
     pipe_through(:browser)
 
     get("/", PageController, :index)
+    get("/user", PageController, :user)
     resources("/games", GameController, only: [:new, :create, :show])
 
     # Diagnostics
@@ -33,6 +34,7 @@ defmodule PairsOneWeb.Router do
     pipe_through([:browser, :enforce_locale])
 
     get("/", PageController, :index)
+    get("/user", PageController, :user)
     post("/games/random", GameController, :random)
     resources("/games", GameController, only: [:new, :create, :show, :index])
   end
