@@ -696,7 +696,19 @@ img.screenshot {
 }
 
 .user-history .table {
-  margin-bottom: 0;
+  margin-bottom: 10px;
+  table-layout: auto;
+}
+
+.user-history .table th,
+.user-history .table td {
+  white-space: nowrap;
+  vertical-align: middle;
+}
+
+.user-history__delete {
+  padding: 2px 8px;
+  color: #999;
 }
 
 .header h4 small {

@@ -29,6 +29,9 @@ type alias Model =
     , phxSocket : Phoenix.Socket.Socket Msg
     , phxPresences : PresenceState PlayerPresence
     , inFocus : Bool
+    , moveHits : Int {- match: second card equals first -}
+    , moveKnownMisses : Int {- mismatch, second card was seen before -}
+    , moveNewMisses : Int {- mismatch, second card had not been opened -}
     }
 
 

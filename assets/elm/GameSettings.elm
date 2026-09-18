@@ -31,6 +31,7 @@ type alias Params =
     , size : Int
     , players : Int
     , visibility : String
+    , lockSoloLocal : Bool
     }
 
 
@@ -70,6 +71,7 @@ type alias Model =
     , boardSize : Int
     , players : Int
     , visibility : Visibility
+    , lockSoloLocal : Bool
     }
 
 
@@ -84,22 +86,35 @@ main =
 
 
 init : Params -> ( Model, Cmd Msg )
-init { csrf, locale, themes, theme, size, players, visibility } =
+init { csrf, locale, themes, theme, size, players, visibility, lockSoloLocal } =
     let
         theme_ =
-            -- List.head (themes) |> Maybe.withDefault defaultTheme
             List.Extra.find (\th -> th.name == theme) themes |> Maybe.withDefault defaultTheme
+
+        players_ =
+            if lockSoloLocal then
+                1
+
+            else
+                players
+
+        visibility_ =
+            if lockSoloLocal then
+                Local
+
+            else
+                visibilityFromString visibility
     in
-        (Model
-            csrf
-            locale
-            themes
-            NullSelector
-            theme_
-            size
-            players
-            (visibilityFromString visibility)
-        )
+        { csrf = csrf
+        , locale = locale
+        , themes = themes
+        , selector = NullSelector
+        , theme = theme_
+        , boardSize = size
+        , players = players_
+        , visibility = visibility_
+        , lockSoloLocal = lockSoloLocal
+        }
             ! []
 
 
@@ -119,10 +134,18 @@ update msg model =
             { model | selector = BoardSizeSelector } ! []
 
         ShowPlayersSelector ->
-            { model | selector = PlayersSelector } ! []
+            if model.lockSoloLocal then
+                model ! []
+
+            else
+                { model | selector = PlayersSelector } ! []
 
         ShowVisibilitySelector ->
-            { model | selector = VisibilitySelector } ! []
+            if model.lockSoloLocal then
+                model ! []
+
+            else
+                { model | selector = VisibilitySelector } ! []
 
         CloseModal ->
             { model | selector = NullSelector } ! []
@@ -145,18 +168,26 @@ update msg model =
                 model_ ! [ saveSettings model_ ]
 
         SelectPlayers n ->
-            let
-                model_ =
-                    { model | players = n, selector = NullSelector }
-            in
-                model_ ! [ saveSettings model_ ]
+            if model.lockSoloLocal then
+                model ! []
+
+            else
+                let
+                    model_ =
+                        { model | players = n, selector = NullSelector }
+                in
+                    model_ ! [ saveSettings model_ ]
 
         SelectVisibility visibility ->
-            let
-                model_ =
-                    { model | visibility = visibility, selector = NullSelector }
-            in
-                model_ ! [ saveSettings model_ ]
+            if model.lockSoloLocal then
+                model ! []
+
+            else
+                let
+                    model_ =
+                        { model | visibility = visibility, selector = NullSelector }
+                in
+                    model_ ! [ saveSettings model_ ]
 
 
 subscriptions : Model -> Sub Msg
@@ -258,19 +289,8 @@ view model =
                 [ Html.form [ action <| "/" ++ model.locale ++ "/games", method "post" ]
                     [ input [ type_ "hidden", name "_csrf_token", value model.csrf ] []
                     , div [ class "row" ]
-                        [ div [ class "col-sm-3" ]
-                            [ themeButton model
-                            ]
-                        , div [ class "col-sm-3" ]
-                            [ boardSizeButton model
-                            ]
-                        , div [ class "col-sm-3" ]
-                            [ playersButton model
-                            ]
-                        , div [ class "col-sm-3" ]
-                            [ visibilityButton model
-                            ]
-                        ]
+                        (settingButtons model)
+                    , soloLocalFields model
                     , div [ class "row btn-go-wrapper" ]
                         [ div [ class "col-sm-4 col-sm-offset-4 centered-content" ]
                             [ button [ class "btn btn-default", type_ "submit" ] [ text <| t StartGame ]
@@ -279,6 +299,39 @@ view model =
                     ]
                 ]
             ]
+
+
+settingButtons : Model -> List (Html Msg)
+settingButtons model =
+    if model.lockSoloLocal then
+        [ div [ class "col-sm-6" ]
+            [ themeButton model ]
+        , div [ class "col-sm-6" ]
+            [ boardSizeButton model ]
+        ]
+
+    else
+        [ div [ class "col-sm-3" ]
+            [ themeButton model ]
+        , div [ class "col-sm-3" ]
+            [ boardSizeButton model ]
+        , div [ class "col-sm-3" ]
+            [ playersButton model ]
+        , div [ class "col-sm-3" ]
+            [ visibilityButton model ]
+        ]
+
+
+soloLocalFields : Model -> Html Msg
+soloLocalFields model =
+    if model.lockSoloLocal then
+        div []
+            [ input [ type_ "hidden", name "game[players_number]", value "1" ] []
+            , input [ type_ "hidden", name "game[visibility]", value "local" ] []
+            ]
+
+    else
+        text ""
 
 
 visibilityButton : Model -> Html Msg

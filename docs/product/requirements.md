@@ -8,7 +8,7 @@
 - `/user` custom-game UI matches the home-page custom-game section.
 - Custom-game choices persist in the browser (`pairs-one-settings`).
 - Finished games append history in the browser (`pairs-one-game-history`).
-- History fields: score, duration, start time, end time, theme, size.
+- History fields: accuracy, duration, hits, misses, neutral, theme, size, start time, end time. Rows can be deleted in the browser.
 - Visual changes reuse existing templates, Elm widgets, and CSS.
 
 ## Should

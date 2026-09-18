@@ -201,7 +201,13 @@ replay model =
         ( phxSocket, phxCmd ) =
             Phoenix.Socket.push push model.phxSocket
     in
-    { model | isCompleted = False } ! [ Cmd.map PhoenixMsg phxCmd, gameRestarted True ]
+    { model
+        | isCompleted = False
+        , moveHits = 0
+        , moveKnownMisses = 0
+        , moveNewMisses = 0
+    }
+        ! [ Cmd.map PhoenixMsg phxCmd, gameRestarted True ]
 
 
 flipCard : Int -> Model -> ( Model, Cmd Msg )
@@ -316,7 +322,8 @@ flipCard index model =
                 model.playerTurn
 
         newModel =
-            { model | game = newGame, flippedIds = flippedIds, isCompleted = roundFinished, playerTurn = playerTurn }
+            applyMoveCounts turnFinished matched flippedIds cards.seen
+                { model | game = newGame, flippedIds = flippedIds, isCompleted = roundFinished, playerTurn = playerTurn }
 
         historyCmd =
             maybeSaveHistory model.isCompleted newModel
@@ -365,14 +372,23 @@ updateGame model game =
             else
                 playerTurn model.playerId game.players
 
+        completedTurn =
+            game.flips > 0
+                && List.length game.cards.flipped == game.flips
+                && List.length model.game.cards.flipped < game.flips
+
+        matched =
+            List.length game.cards.cleared > List.length model.game.cards.cleared
+
         newModel =
-            { model
-                | game = game__
-                , flippedIds = game.cards.flipped
-                , playerTurn = playerTurn_
-                , isCompleted = isCompleted
-                , random = game.random
-            }
+            applyMoveCounts completedTurn matched game.cards.flipped model.game.cards.seen
+                { model
+                    | game = game__
+                    , flippedIds = game.cards.flipped
+                    , playerTurn = playerTurn_
+                    , isCompleted = isCompleted
+                    , random = game.random
+                }
     in
     newModel ! [ playReadyCmd, playFlipCmd, maybeSaveHistory model.isCompleted newModel ]
 
@@ -431,10 +447,53 @@ historyValue model =
             model.game.players
                 |> List.map (\p -> toString p.score)
                 |> String.join "-"
+
+        turns =
+            model.game.players |> List.map .turns |> List.sum
+
+        inaccurateTurns =
+            model.game.players |> List.map .inaccurateTurns |> List.sum
+
+        accuracy =
+            if turns == 0 then
+                0
+
+            else
+                (toFloat turns - toFloat inaccurateTurns) / toFloat turns * 100 |> truncate
     in
     JE.object
         [ ( "id", JE.string model.game.id )
         , ( "theme", JE.string model.game.theme )
         , ( "size", JE.int size )
         , ( "score", JE.string score )
+        , ( "accuracy", JE.int accuracy )
+        , ( "hits", JE.int model.moveHits )
+        , ( "knownMisses", JE.int model.moveKnownMisses )
+        , ( "newMisses", JE.int model.moveNewMisses )
         ]
+
+
+{-| Classify a finished two-card move using the seen set from *before* this move.
+The latest flip is prepended, so the second box is List.head.
+-}
+applyMoveCounts : Bool -> Bool -> List Int -> List Int -> Model -> Model
+applyMoveCounts turnFinished matched flippedIds seenIds model =
+    if not turnFinished then
+        model
+
+    else
+        let
+            secondId =
+                flippedIds |> List.head |> Maybe.withDefault -1
+
+            secondWasSeen =
+                List.member secondId seenIds
+        in
+        if matched then
+            { model | moveHits = model.moveHits + 1 }
+
+        else if secondWasSeen then
+            { model | moveKnownMisses = model.moveKnownMisses + 1 }
+
+        else
+            { model | moveNewMisses = model.moveNewMisses + 1 }

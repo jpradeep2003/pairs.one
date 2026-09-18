@@ -82,7 +82,7 @@
         </div>
       </div>
     </div> <!-- /container -->
-    <script src="<%= static_path(@conn, "/js/app.js") %>"></script>
+    <script src="<%= js_app_src(@conn) %>"></script>
     <%= if Application.get_env(:pairs_one, :ga) do %>
       <%= render "ga.html" %>
     <% end %>

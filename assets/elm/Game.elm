@@ -95,6 +95,9 @@ init { id, playerId, host, isSsl, playerName, themes, locale } =
           , phxSocket = socketInit
           , phxPresences = Dict.empty
           , inFocus = True
+          , moveHits = 0
+          , moveKnownMisses = 0
+          , moveNewMisses = 0
           }
         , Cmd.map PhoenixMsg phxCmd
         )

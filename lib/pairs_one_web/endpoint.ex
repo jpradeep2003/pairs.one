@@ -27,7 +27,8 @@ defmodule PairsOneWeb.Endpoint do
     at: "/",
     from: :pairs_one,
     gzip: false,
-    only: ~w(css fonts images favicons sounds js favicon.ico robots.txt)
+    only: ~w(css fonts images favicons sounds js favicon.ico robots.txt),
+    cache_control_for_etags: "no-cache, no-store, must-revalidate"
   )
 
   # Code reloading can be explicitly enabled under the

@@ -1,6 +1,6 @@
 <h3 id="custom-game" class="centered-content custom-game__title">Start a custom game</h3>
 <div class="col-sm-12">
-  <div class="elm-game-selector" data-themes='<%= raw @themes %>' data-csrf='<%= get_csrf_token() %>'></div>
+  <div class="elm-game-selector" data-themes='<%= raw @themes %>' data-csrf='<%= get_csrf_token() %>' data-lock-solo-local="true"></div>
 </div>
 
 <h3 class="centered-content custom-game__title">History</h3>
@@ -9,17 +9,22 @@
     <table class="table">
       <thead>
         <tr>
-          <th>Score</th>
+          <th>Accuracy</th>
           <th>Duration</th>
-          <th>Start</th>
-          <th>End</th>
+          <th title="Match: the second card equals the first">Hits</th>
+          <th title="Mismatch, and the second card had been opened before">Misses</th>
+          <th title="Mismatch, and the second card was new">Neutral</th>
           <th>Theme</th>
           <th>Size</th>
+          <th>Start</th>
+          <th>End</th>
+          <th></th>
         </tr>
       </thead>
       <tbody class="user-history__body">
       </tbody>
     </table>
+    <p class="text-muted">A move is two cards. <strong>Hit</strong> = pair. <strong>Miss</strong> = mismatch and the second card was already seen. <strong>Neutral</strong> = mismatch and the second card was new.</p>
     <p class="text-muted user-history__empty hidden">No games recorded yet. Finish a custom game to see it here.</p>
   </div>
 </div>

@@ -111,12 +111,16 @@ $(function(){
           var endedAt = Date.now();
           var entry = {
             score: payload.score,
+            accuracy: payload.accuracy,
             durationMs: endedAt - gameStartedAt,
             startTime: new Date(gameStartedAt).toISOString(),
             endTime: new Date(endedAt).toISOString(),
             theme: payload.theme,
             size: payload.size,
-            id: payload.id
+            id: payload.id,
+            hits: payload.hits,
+            knownMisses: payload.knownMisses,
+            newMisses: payload.newMisses
           };
           var history = [];
           try {
@@ -130,10 +134,11 @@ $(function(){
           var alreadyStored = history.some(function(item){
             return item.id === entry.id && item.endTime === entry.endTime;
           });
-          if (!alreadyStored) {
-            history.unshift(entry);
-            localStorage.setItem(historyKey, JSON.stringify(history.slice(0, 200)));
-          }
+        if (!alreadyStored) {
+          history.unshift(entry);
+          localStorage.setItem(historyKey, JSON.stringify(history.slice(0, 200)));
+        }
+        window.location.href = "/" + locale + "/user";
         });
       }
 
@@ -186,21 +191,63 @@ $(function(){
       }
       return date.toLocaleString();
     };
+    var formatMoveCount = function(value){
+      if (typeof value === "number") {
+        return String(value);
+      }
+      return "—";
+    };
+    var formatAccuracy = function(value){
+      if (typeof value === "number") {
+        return value + "%";
+      }
+      return "—";
+    };
     $body.empty();
     history.forEach(function(item){
       var size = item.size ? item.size + "x" + item.size : "";
       var row = $("<tr/>");
-      row.append($("<td/>").text(item.score || ""));
+      row.append($("<td/>").text(formatAccuracy(item.accuracy)));
       row.append($("<td/>").text(formatDuration(item.durationMs)));
-      row.append($("<td/>").text(formatTime(item.startTime)));
-      row.append($("<td/>").text(formatTime(item.endTime)));
+      row.append($("<td/>").text(formatMoveCount(item.hits)));
+      row.append($("<td/>").text(formatMoveCount(item.knownMisses)));
+      row.append($("<td/>").text(formatMoveCount(item.newMisses)));
       row.append($("<td/>").text(item.theme || ""));
       row.append($("<td/>").text(size));
+      row.append($("<td/>").text(formatTime(item.startTime)));
+      row.append($("<td/>").text(formatTime(item.endTime)));
+      var $delete = $("<button/>", {
+        type: "button",
+        class: "btn btn-default btn-sm user-history__delete",
+        title: "Delete this game",
+        "data-id": item.id || "",
+        "data-end": item.endTime || ""
+      }).append($("<span/>", { class: "fa fa-close" }));
+      row.append($("<td/>").append($delete));
       $body.append(row);
     });
   };
 
   renderHistory();
+
+  $(document).on("click", ".user-history__delete", function(){
+    var id = String($(this).data("id") || "");
+    var endTime = String($(this).data("end") || "");
+    var history = [];
+    try {
+      history = JSON.parse(localStorage.getItem("pairs-one-game-history") || "[]");
+    } catch (err) {
+      history = [];
+    }
+    if (!Array.isArray(history)) {
+      history = [];
+    }
+    history = history.filter(function(item){
+      return !(String(item.id || "") === id && String(item.endTime || "") === endTime);
+    });
+    localStorage.setItem("pairs-one-game-history", JSON.stringify(history));
+    renderHistory();
+  });
 
   $("#player-data input").attr("value", playerName);
 
@@ -216,18 +263,39 @@ $(function(){
       },
         settings = JSON.parse(localStorage.getItem(settingsKey) || JSON.stringify(defaultSettings));
 
+      var lockSoloLocal = $(el).is("[data-lock-solo-local]");
+
       elm = Elm.GameSettings.embed(el, {
         csrf: $(el).data("csrf"),
         locale: $("html").attr("lang"),
         themes: $(el).data("themes"),
         theme: settings.theme,
         size: settings.size,
-        players: settings.players,
-        visibility: settings.visibility
+        players: lockSoloLocal ? 1 : settings.players,
+        visibility: lockSoloLocal ? "local" : settings.visibility,
+        lockSoloLocal: lockSoloLocal
       });
 
       elm.ports.saveSettingsToLocalStorage.subscribe(function(params){
-        localStorage.setItem(settingsKey, JSON.stringify(params));
+        if (lockSoloLocal) {
+          var stored = {};
+          try {
+            stored = JSON.parse(localStorage.getItem(settingsKey) || "{}");
+          } catch (err) {
+            stored = {};
+          }
+          stored.theme = params.theme;
+          stored.size = params.size;
+          if (!stored.players) {
+            stored.players = defaultSettings.players;
+          }
+          if (!stored.visibility) {
+            stored.visibility = defaultSettings.visibility;
+          }
+          localStorage.setItem(settingsKey, JSON.stringify(stored));
+        } else {
+          localStorage.setItem(settingsKey, JSON.stringify(params));
+        }
       });
     }
   );
