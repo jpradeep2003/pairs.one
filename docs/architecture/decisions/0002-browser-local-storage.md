@@ -9,7 +9,7 @@
 
 ## Decision
 
-Keep using the existing `pairs-one-settings` localStorage key for the Elm game selector. Add `pairs-one-game-history` for completed rounds, written from an Elm port when `isCompleted` becomes true.
+Keep using the existing `pairs-one-settings` localStorage key for the Elm game selector. On `/user`, persist theme and size only (`lockSoloLocal`). Add `pairs-one-game-history` for completed rounds, written from an Elm port when `isCompleted` becomes true.
 
 ## Consequences
 

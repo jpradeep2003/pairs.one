@@ -7,5 +7,8 @@
 | `SECRET_KEY_BASE` | `config/dev.exs` or env in prod | Cookie signing |
 | `PHX_HOST` | prod runtime | Public hostname |
 | Tunnel config | `~/.cloudflared/pairs-one-tunnel.yml` | Cloudflare ingress |
+| `js_app_src` | `ViewHelpers` | Cache-bust query on `/js/app.js` (bump `?v=` when history JS changes) |
+| `pairs-one-settings` | browser localStorage | Theme/size (and on the home page: players/visibility) |
+| `pairs-one-game-history` | browser localStorage | Finished games on `/user` |
 
-Do not commit tunnel credential JSON or `*.local.exs` secrets.
+Do not commit tunnel credential JSON, `*.local.exs` secrets, `.run/`, or `graphify-out/`.

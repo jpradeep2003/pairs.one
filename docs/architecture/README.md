@@ -7,6 +7,7 @@
 | Page | Description |
 |------|-------------|
 | [Overview](overview.md) | Phoenix, Elm, Redis, tunnel |
+| [Game state](game-state.md) | Multiplayer, compression, Redis, `/user` storage |
 | [ADR 0001](decisions/0001-mac-cloudflare-tunnel.md) | Host on Mac via tunnel |
 | [ADR 0002](decisions/0002-browser-local-storage.md) | Browser storage for options and history |
 

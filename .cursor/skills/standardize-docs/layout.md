@@ -75,6 +75,7 @@ These paths **may exist outside `docs/`** and should not be forcibly migrated:
 | `LICENSE`, `CHANGELOG.md`, `CONTRIBUTING.md` | Community conventions (prefer moving CONTRIBUTING to `docs/developer/` and linking) |
 | `config.example.yaml`, `.env.example` | Executable config templates |
 | `.cursor/skills/**/SKILL.md` | Agent skill definitions |
+| `history/` | Agent chat archive from the `dev-chat-history` skill (index, not product docs) |
 | `.github/**` | GitHub templates (keep minimal; link to docs) |
 | `**/README.md` inside code packages | Module pointers only — ≤ 15 lines, must link to `docs/` |
 

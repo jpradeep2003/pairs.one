@@ -12,3 +12,6 @@ Documentation is organized by role. Start with the guide that matches your job.
 | User | End-user features and how-tos | [user/](user/README.md) |
 | Operator | Mac host and Cloudflare tunnel | [operator/](operator/README.md) |
 | Admin | Instance configuration | [admin/](admin/README.md) |
+
+Development chat transcripts live under `history/` (not role docs; see [history/index.md](../history/index.md)). Agent skills stay in `.cursor/skills/`. Vendor READMEs under `assets/elm/elm-stuff/` are package copies, not product docs.
+

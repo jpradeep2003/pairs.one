@@ -6,7 +6,7 @@ Run this Phoenix app on a MacBook and expose it on an HTTPS hostname via Cloudfl
 
 ## Milestone 2 — `/user` enhancements
 
-A dedicated `/user` page reuses the home-page custom-game selector, remembers theme/size/players/visibility in the browser, and lists finished-game history (score, duration, start, end, theme, size) in `localStorage`.
+A dedicated `/user` page for 1-player local custom games (theme/size remembered), then history in `localStorage`: Accuracy, Duration, Hits, Misses, Neutral, Theme, Size, Start, End. Finished games redirect to **My games**. Rows can be deleted.
 
 ## Later
 

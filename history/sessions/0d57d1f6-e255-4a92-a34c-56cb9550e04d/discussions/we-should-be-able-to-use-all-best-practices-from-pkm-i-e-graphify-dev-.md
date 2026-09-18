@@ -4,7 +4,7 @@ discussion_slug: we-should-be-able-to-use-all-best-practices-from-pkm-i-e-graphi
 source_agent: cursor
 primary_tag: docs-spec
 secondary_tags: []
-started_at: 2026-09-18T05:04:36Z
+started_at: 2026-09-18T05:58:15Z
 title: - We should be able to use all best practices from pkm i.e. graphify, /dev-chat-
 status: completed
 outcomes: []

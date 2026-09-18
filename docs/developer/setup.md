@@ -3,9 +3,12 @@
 ## Prerequisites
 
 - Erlang/OTP 26 (`brew install erlang@26`) and Elixir 1.15 (precompiled zip under `~/.local/elixir-1.15.7`, see `.tool-versions`)
+- Node.js (Brunch; Node 16 is safer than 24 if the watcher fails)
 - Elm 0.18 (`~/.local/elm-0.18.0/darwin-x64` on PATH; x86_64 binary via Rosetta)
 - Redis
-- Hex and Mix dependencies
+- Hex (`mix local.hex`)
+
+`scripts/start-local.sh` prepends Elixir, Erlang@26, and Elm 0.18 to `PATH`.
 
 ## First run
 

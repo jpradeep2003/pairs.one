@@ -14,6 +14,12 @@ PROJECT_ROOT = Path(__file__).resolve().parents[1]
 DEFAULT_TRANSCRIPTS = Path.home() / ".cursor/projects/Users-jpradeep2003-dev-pairs-one/agent-transcripts"
 HISTORY_ROOT = PROJECT_ROOT / "history"
 USER_QUERY_RE = re.compile(r"<user_query>\s*(.*?)\s*</user_query>", re.DOTALL)
+SKIP_QUERY_RE = re.compile(
+    r"Execute the selected diff-tab|"
+    r"Briefly inform the user about the task result|"
+    r"<dynamic_tools>",
+    re.I,
+)
 
 TAGS = [
     "requirement-analysis",
@@ -46,14 +52,17 @@ def extract_text(message: dict) -> str:
 
 def infer_tag(text: str) -> str:
     lower = text.lower()
-    if "graphify" in lower or "history/" in lower or "standardize-docs" in lower:
+    stripped = text.strip()
+    if stripped.startswith("/dev-chat-history") or stripped.startswith("/standardize-docs"):
+        return "meta-tooling" if "dev-chat-history" in stripped else "docs-spec"
+    if "graphify" in lower or "standardize-docs" in lower:
         return "docs-spec"
     if "host" in lower or "cloudflare" in lower or "tunnel" in lower:
         return "dev-routine-tasks"
-    if "/user" in lower or "history" in lower and "game" in lower:
-        return "dev-feature"
     if "architecture" in lower:
         return "arch-analysis"
+    if "/user" in lower or ("history" in lower and "game" in lower):
+        return "dev-feature"
     return "dev-feature"
 
 
@@ -71,11 +80,21 @@ def parse_session(path: Path) -> dict:
             continue
         text = extract_text(msg)
         match = USER_QUERY_RE.search(text)
-        if match:
-            queries.append(match.group(1).strip())
-        elif text and "<dynamic_tools>" not in text and "Briefly inform" not in text:
-            if len(text) > 40:
-                queries.append(text.strip()[:2000])
+        candidate = match.group(1).strip() if match else ""
+        if not candidate:
+            if "<dynamic_tools>" in text or "Briefly inform" in text:
+                continue
+            if len(text.strip()) > 40:
+                candidate = text.strip()[:2000]
+        if not candidate or SKIP_QUERY_RE.search(candidate):
+            continue
+        if queries and slugify(queries[-1].split("\n", 1)[0]) == slugify(candidate.split("\n", 1)[0]):
+            queries[-1] = candidate
+            continue
+        if queries and len(candidate) < 100 and not candidate.startswith("/"):
+            queries[-1] = queries[-1] + "\n\n" + candidate
+            continue
+        queries.append(candidate)
     digest = hashlib.sha256("\n".join(lines).encode()).hexdigest()
     return {"queries": queries, "line_count": len(lines), "hash": digest, "path": path}
 

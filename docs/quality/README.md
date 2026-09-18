@@ -6,4 +6,5 @@
 
 | Page | Description |
 |------|-------------|
-| [Testing](testing.md) | What exists and what to check manually |
+| [Testing](testing.md) | Commands and manual checks |
+| [Known issues](known-issues.md) | IE, blocked websockets |

@@ -25,6 +25,8 @@ assets/node_modules
 
 /assets/elm/elm-stuff/build-artifacts
 /assets/vendor/elm
+/assets/elm-package.json
+/assets/elm-stuff/
 
 dump.rdb
 .deliver/releases/
