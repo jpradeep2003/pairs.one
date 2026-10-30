@@ -9,6 +9,8 @@ PID_DIR="${ROOT}/.run"
 mkdir -p "$PID_DIR"
 
 export MIX_ENV="${MIX_ENV:-dev}"
+# Public tunnel: no live-reload iframe / Brunch watcher (they steal clicks and RAM).
+export PAIRS_HOSTING="${PAIRS_HOSTING:-1}"
 export PATH="${HOME}/.local/elm-0.18.0/darwin-x64:${HOME}/.local/bin:${HOME}/.local/elixir-1.15.7/bin:/opt/homebrew/opt/erlang@26/bin:/opt/homebrew/bin:${HOME}/.asdf/shims:${PATH}"
 
 if ! command -v redis-cli >/dev/null 2>&1; then

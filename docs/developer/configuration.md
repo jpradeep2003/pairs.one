@@ -3,6 +3,7 @@
 | Key | Where | Purpose |
 |-----|--------|---------|
 | `MIX_ENV` | env | Use `dev` on the Mac host |
+| `PAIRS_HOSTING` | `scripts/start-local.sh` (default `1`) | Disables live-reload and Brunch watch so the public board stays clickable |
 | Redis URI | `config` / `REDIS_URI` in prod | Default `redis://localhost:6379/0` |
 | `SECRET_KEY_BASE` | `config/dev.exs` or env in prod | Cookie signing |
 | `PHX_HOST` | prod runtime | Public hostname |

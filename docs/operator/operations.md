@@ -12,7 +12,7 @@ Pid files and logs live in `.run/` (gitignored).
 
 Phoenix listens on http://127.0.0.1:4000. Health: `/health`.
 
-The Brunch watcher is started without `--stdin` so the app can run as a background process.
+`scripts/start-local.sh` sets `PAIRS_HOSTING=1`: no Phoenix live-reload iframe and no Brunch watcher. For live asset reload while coding, run `PAIRS_HOSTING=0 mix phx.server`.
 
 ## Cloudflare Tunnel
 
